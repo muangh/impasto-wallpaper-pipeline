@@ -1,0 +1,55 @@
+# --- Image / video working data -------------------------------------------
+# Source photos and 4K renders run ~1.7 GB and are regenerable (or licensed
+# stock that should not be redistributed). Only samples/ is tracked.
+Input_Images/
+Input_Prepared/
+Processed_Images/
+Deliverables/
+
+# --- macOS ------------------------------------------------------------------
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- Secrets: never commit -------------------------------------------------
+# Environment files, in every common variant. The negation keeps a committed
+# .env.example template usable while still blocking real values.
+.env
+.env.*
+*.env
+!.env.example
+!.env.template
+
+# Credentials, keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa*
+id_ed25519*
+credentials.json
+client_secret*.json
+service-account*.json
+*_credentials.*
+*secret*.json
+*token*.json
+.netrc
+.npmrc
+.pypirc
+
+# API keys dropped into loose files
+apikey*
+api_key*
+*.apikey
+
+# --- Local tooling ----------------------------------------------------------
+.claude/settings.local.json
+.claude/*.local.json

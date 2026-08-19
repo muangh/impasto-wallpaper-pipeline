@@ -1,0 +1,4 @@
+# make_deliverables.py only needs Pillow.
+# macOS note: the system interpreter at /usr/bin/python3 already ships with
+# Pillow 11.3, so `make_deliverables.py` runs there with no install at all.
+Pillow>=10.0

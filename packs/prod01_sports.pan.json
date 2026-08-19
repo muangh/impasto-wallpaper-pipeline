@@ -1,0 +1,15 @@
+{
+  "_about": "Left-edge x for the 9:16 phone crop, in the 5504px source space (0..3776). Chosen by eye from the 4K renders.",
+  "BaseBall01":   { "x": 3587, "why": "pitcher (upper) and batter/catcher (lower) both sit right" },
+  "BaseBall02":   { "x": 1775, "why": "lone pitcher on the mound, near centre" },
+  "Basketball01": { "x": 1888, "why": "backboard and hoop centred, truss above / post below" },
+  "Basketball02": { "x": 1888, "why": "rim and swaying net centred" },
+  "Boat01":       { "x": 1208, "why": "surfer cluster sits centre-left" },
+  "Boat02":       { "x": 2379, "why": "hero boat with kayak and canopy, right of centre" },
+  "Football01":   { "x": 793,  "why": "goal frame, penalty box and player on the left" },
+  "Football02":   { "x": 2190, "why": "keeper striking the ball, right of centre" },
+  "Golf01":       { "x": 1220, "why": "flag on the pin against the sea; re-panned by hand after the first run — the shipped crop matches ~1220, not the original 1699" },
+  "Golf02":       { "x": 2039, "why": "central green with the two bunkers" },
+  "Tennis01":     { "x": 2605, "why": "server and cast shadow lower-right" },
+  "Tennis02":     { "x": 1888, "why": "server centred under the diagonal shade" }
+}
