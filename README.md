@@ -8,18 +8,55 @@ composition, proportion and light; the model only rewrites the *surface* into th
 hand-applied paint. That single constraint is what separates this from the smooth
 digital slop a blank prompt produces.
 
-## Sample
+A personal project, built to see how far a disciplined prompt structure and careful
+source selection could push a generative model toward something that reads as a real
+painted object rather than a filter.
+
+## Gallery
+
+### The full chain, end to end
+
+One image carries every stage: a drone photograph, repainted at 4K, then animated into a
+living painting.
+
+| Source photograph | Repainted at 4K |
+|---|---|
+| ![source](samples/Boat01_source.jpg) | ![oil](samples/Boat01_oil.jpg) |
+
+**▶ [Watch the 7-second animation](samples/Boat01_oil_video.mp4)** — GitHub plays it
+inline when you open the file. The water shimmers and the surfers drift with the swell
+while the camera holds completely still; the brushwork and canvas weave stay put.
+
+This is deliberately the *hardest* case in the pack, and it's instructive. Close-up
+overhead water fills the frame with fine detail, and the model preserves detail rather
+than abstracting it — so the paint here is far subtler than elsewhere, closer to a
+painterly treatment than to thick impasto. It earns its place as the hero because that
+same dense surface makes it the best subject for motion, and because it is the one image
+that runs the whole pipeline.
+
+### Where the paint is most convincing
+
+Broad, simple surfaces are what the style block was built for. This is the same render
+at 100%, straight from 5504×3072 — palette-knife ridges catching the light, canvas weave
+showing through the thinner passages:
 
 | Source photograph | Repainted at 4K |
 |---|---|
 | ![source](samples/Golf02_source.jpg) | ![oil](samples/Golf02_oil.jpg) |
 
-Detail at 100%, straight from the 5504×3072 render — palette-knife ridges catching the
-light, canvas weave showing through the thinner passages:
-
 ![detail](samples/Golf02_oil_detail.jpg)
 
-The exact prompt that produced it is in [`samples/Golf02_prompt.txt`](samples/Golf02_prompt.txt).
+### Range
+
+Three more from the same pack, each testing a different kind of scene:
+
+| Action and figures | Built structure | Aerial and raking light |
+|---|---|---|
+| ![football](samples/Football02_oil.jpg) | ![basketball](samples/Basketball01_oil.jpg) | ![tennis](samples/Tennis02_oil.jpg) |
+| Orange kit on green turf — a true complementary pair, and turf takes impasto beautifully | The flat wall was expected to be too dull to paint; it became broad palette-knife slabs and carries the picture | Clay reduced to dabbed strokes, with the shadow diagonal preserved intact |
+
+Every source photograph and the exact prompt that produced each render are in
+[`samples/`](samples/).
 
 ## How it works
 
@@ -111,9 +148,10 @@ make_deliverables.py        16:9 + 9:16 finishing, optional watermark
 style_block.txt             fixed Part B of the prompt (warm)
 style_block_cool.txt        same, minus the warm-light clause
 packs/*.pan.json            per-image 9:16 pan offsets
-samples/                    one before/after pair + its prompt
+samples/                    before/after pairs, their prompts, and the video
 docs/field-notes.md         what works, what fails, and why
 docs/phase-1-brief.md       the original build spec
+LICENSE                     MIT, covering code and docs only
 ```
 
 The image working folders (`Input_Images/`, `Input_Prepared/`, `Processed_Images/`,
@@ -124,14 +162,23 @@ reproducible from the sidecar prompts. Only `samples/` is committed.
 
 Phase 1 is complete: folder in, 4K oil-paint stills out, cut to two delivery formats.
 
-- **Prod01 Sports** — 12/12 shipped at 5504×3072.
-- **Video** — under evaluation. Seedance 2.0 holds the paint texture; Kling does not.
-- **Next packs** — Villa (expected to run clean: sunlit, broad surfaces) and Larp
-  (needs generated bases for the watches and cars).
+- **Prod01 Sports** — 12/12 rendered at 5504×3072, cut to both formats.
+- **Video** — Seedance 2.0 holds the paint texture, Kling destroys it. 1080p at 7s is
+  the config that stays affordable without losing the brushwork; the sample above was
+  rendered at 4K and downscaled for this repo.
+- **Next packs** — Villa (should run clean: sunlit, broad surfaces) and Larp (needs
+  generated bases for the watches and cars).
 
-## Licensing
+## License and source material
 
-Use own photographs, licensed stock, or AI-generated bases only. Note that arena and
-event photography is frequently licensed *editorial use only*, which is a contract term
-excluding resale merchandise — separate from any trademark question. Verify current
-Higgsfield / Nano Banana commercial terms before selling output.
+The code, prompts and documentation in this repository are MIT licensed — see
+[LICENSE](LICENSE).
+
+The **photographs are not**. Sample sources are included only to show what the pipeline
+receives as input, and the rights in them belong to their original photographers. This is
+a non-commercial personal project; nothing here is produced for sale.
+
+If you fork this to run on your own images, use photographs you took or hold rights to.
+Worth knowing if you ever point it at stock: a lot of arena and event photography is
+licensed *editorial use only*, which restricts commercial reuse independently of any
+trademark question.

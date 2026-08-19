@@ -47,19 +47,23 @@ Similarly, a large flat wall with little tonal variety was expected to be too du
 take paint. Instead the model read the wall panels as an excuse for broad palette-knife
 slabs, and the wall carried the picture (Basketball01).
 
-## Signage and trademarks
+## Text and signage survive at scale
 
-**Large high-contrast signage survives the repaint — often rendered more legibly than
-in the source.** Stadium hoardings came back as clean painted billboards for brands that
-never licensed the work: LIDL, UEFA EUROPA LEAGUE, Coca-Cola, Toyota, and an
-advertiser's phone number.
+**Large high-contrast signage survives the repaint — often rendered *more* legibly than
+in the source.** Stadium hoardings came back as crisp painted billboards, brand names
+fully readable. This is worth knowing because it breaks the illusion: a painting whose
+advertising boards are sharper than its subject reads as a composite, not a canvas.
 
 **Small incidental marks get abstracted away.** A ball's wordmark and a glove's branding
-both dissolved into illegible texture.
+both dissolved into illegible texture at the same settings.
 
-> **Sourcing rule:** professional arena sport is advertising-saturated; aerial and
-> open-air sport is clean. Tight, subject-focused framing solves the trademark problem
-> as a side effect of solving the composition problem.
+The size threshold, not the content, is what decides. This is consistent with the
+spatial-frequency rule above — big shapes get treated as structure worth preserving,
+small ones as texture to reinterpret.
+
+> **Sourcing rule:** professional arena sport is signage-saturated and the repaint
+> amplifies it; aerial and open-air sport is clean. Tight, subject-focused framing keeps
+> lettering out of the frame as a side effect of better composition.
 
 ## Aspect ratio must be fixed before upload
 
