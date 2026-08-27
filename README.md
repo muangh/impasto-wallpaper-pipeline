@@ -1,7 +1,8 @@
 # Impasto — oil-paint wallpaper pipeline
 
-Turns a folder of photographs into gallery-grade oil-paint wallpapers at 4K, then cuts
-them into desktop (16:9) and iPhone (9:16) deliverables.
+A command-line wrapper around Higgsfield that turns a folder of photographs into
+oil-paint wallpapers. Drop images in `input/`, answer a few questions, collect
+finished files from `output/`.
 
 The repaint is **image-to-image**, never text-to-image. The photograph supplies
 composition, proportion and light; the model only rewrites the *surface* into thick
@@ -58,127 +59,144 @@ Three more from the same pack, each testing a different kind of scene:
 Every source photograph and the exact prompt that produced each render are in
 [`samples/`](samples/).
 
+## Quick start
+
+```bash
+pip install -r requirements.txt
+```
+
+Try it with no keys and no spending — this prepares the sources and writes the exact
+prompts it *would* send, then stops:
+
+```bash
+python -m impasto --dry-run
+```
+
+For a real run, put your photographs in `input/` and go:
+
+```bash
+python -m impasto
+```
+
+It asks for resolution, aspect ratio, lighting, whether you want a phone crop and a
+watermark, then confirms before spending anything. Missing credentials are prompted for
+and can be saved to `.env` (gitignored, `chmod 600`).
+
+### Keys
+
+| Variable | Required | What it does |
+|---|---|---|
+| `HF_API_KEY` / `HF_API_SECRET` | Yes | The Higgsfield repaint. Create a pair at [cloud.higgsfield.ai](https://cloud.higgsfield.ai) — issued as `ID:SECRET`. |
+| `ANTHROPIC_API_KEY` | Optional | Lets Claude describe each photograph so the repaint keeps that specific scene. Without it, a generic description is used. |
+
+Copy `.env.example` to `.env`, or just let the CLI ask.
+
+### Options
+
+```
+--input FOLDER    where the photographs are (default: input)
+--output FOLDER   where the results go (default: output)
+--dry-run         prepare and build prompts without calling any paid API
+--model ID        override the image-to-image model
+--pan FILE        JSON map of {name: left_x} for hand-tuned 9:16 crops
+```
+
 ## How it works
 
 ```
-Input_Images/<pack>/            your photographs (jpg / png / heic)
-        │
-        │  prepare_sources.sh — pre-crop to the target aspect ratio
-        ▼
-Input_Prepared/<pack>/          sources already at 16:9
-        │
-        │  Stage 1  an agent views each photo and writes a tailored prompt
-        │  Stage 2  Higgsfield `generate_image` (Nano Banana Pro), image-to-image
-        ▼
-Processed_Images/<pack>/        <name>_oil.png at 4K  +  <name>_prompt.txt sidecar
-        │
-        │  make_deliverables.py — watermark + pan-and-scan
-        ▼
-Deliverables/Photos/<pack>/     Desktop_16x9/  and  iPhone_9x16/
+input/                      your photographs (jpg / png / webp / heic)
+     │
+     │  pre-crop to the target aspect ratio
+     ▼
+output/_prepared/           sources already at the right ratio
+     │
+     │  Stage 1  Claude views the photo and writes the scene sentence
+     │  Stage 2  Higgsfield repaints it, image-to-image
+     ▼
+output/renders/             <name>_oil.png  +  <name>_prompt.txt
+     │
+     │  watermark and pan-and-scan
+     ▼
+output/Desktop_16x9/  and  output/iPhone_9x16/
 ```
 
-Two stages do the real work:
-
-**Stage 1 — vision to prompt.** An agent (Claude Code, via native vision) opens each
-photograph and writes a prompt in two parts. Part A is one variable sentence naming the
-actual scene. Part B is a fixed style block appended verbatim from
-[`style_block.txt`](style_block.txt). Splitting them is what keeps the style from
-drifting across a pack — only the scene sentence flexes.
+**Stage 1 — vision to prompt.** Every prompt is two parts. Part A is one variable
+sentence naming the actual scene, written per image by Claude. Part B is a fixed style
+block appended verbatim from [`style_block.txt`](style_block.txt). Splitting them is what
+keeps the style from drifting across a pack — only the scene sentence flexes.
 [`style_block_cool.txt`](style_block_cool.txt) is the same block minus the warm-light
 clause, for images that must keep a cool or blue mood.
 
-**Stage 2 — repaint.** The prepared source is uploaded to Higgsfield
-(`media_upload` → PUT bytes → `media_confirm`), then passed to `generate_image` with
-model `nano_banana_pro` as the image-to-image input. The upload path is fully
-scriptable, so a pack runs unattended.
+**Stage 2 — repaint.** The prepared source is uploaded, then passed to an
+image-to-image model with the assembled prompt. Results are downloaded to
+`output/renders/` alongside the prompt that produced them, so a render is always
+reproducible.
 
 ### Why sources are pre-cropped
 
-Image-to-image non-uniformly scales the source to fill the requested `aspect_ratio`,
-which squishes the geometry. Feeding a source already at the target ratio leaves the
-model no reshaping to do. That is the whole job of `prepare_sources.sh`.
+Image-to-image non-uniformly scales the source to fill the requested aspect ratio, which
+squishes the geometry. Feeding a source already at the target ratio leaves the model no
+reshaping to do.
 
-## Usage
+### A note on the model
 
-```bash
-./prepare_sources.sh Prod01_IMG/Sports 16 9 center
-```
-
-Then run the repaint (Stage 1 + 2 are driven by the agent against the Higgsfield MCP),
-and finish the pack:
-
-```bash
-/usr/bin/python3 make_deliverables.py \
-    --src Processed_Images/Prod01_IMG/Sports_02 \
-    --out Deliverables/Photos/Prod01_Sports \
-    --pan packs/prod01_sports.pan.json
-```
-
-Add `--watermark` to composite the Impasto mark into the bottom-right of the 16:9
-output. The phone crops are always left clean.
-
-Pan offsets live in `packs/*.pan.json` as the left-edge x of the 9:16 crop in source
-pixels, chosen by eye per image so the subject survives the crop. Any name missing from
-the file is centre-cropped.
-
-> **macOS note:** use `/usr/bin/python3`. The system interpreter ships with Pillow 11.3
-> already installed; the Homebrew and python.org interpreters on this machine do not
-> have it. Otherwise `pip install -r requirements.txt`.
+The default is `bytedance/seedream/v4/image-to-image`, overridable with `--model` or
+`IMPASTO_MODEL`. The renders in the gallery above were produced with **Nano Banana Pro**
+through the Higgsfield MCP rather than this CLI, so expect the character of the paint to
+differ somewhat between models. The prompt structure is what carries the style, and it
+transfers.
 
 ## Costs
 
-Measured against Higgsfield Plus credits.
+Measured against Higgsfield Plus credits, for the models used to build the gallery.
 
 | Job | Config | Credits |
 |---|---|---|
-| Repaint, 2K | `nano_banana_pro` | 2 / image |
-| Repaint, 4K | `nano_banana_pro` | 4 / image |
+| Repaint, 2K | Nano Banana Pro | 2 / image |
+| Repaint, 4K | Nano Banana Pro | 4 / image |
 | Video, 1080p | Seedance 2.0, 7s, silent, high bitrate | 63 |
 | Video, 4K | Seedance 2.0, 7s, silent, high bitrate | 154 |
 | Video, cheap | Kling 3.0 pro, 5s, silent | 8.75 |
 
-A 12-image pack costs 48 credits at 4K. Kling is ~7× cheaper than Seedance for video
-but destroys the impasto texture — see [field notes](docs/field-notes.md#video).
+Kling is ~7× cheaper than Seedance for video but destroys the impasto texture — see
+[field notes](docs/field-notes.md#video). Video is not yet wired into the CLI.
 
 ## Repo layout
 
 ```
-prepare_sources.sh          pre-crop sources to the target aspect ratio
-make_deliverables.py        16:9 + 9:16 finishing, optional watermark
+impasto/                    the pipeline package
+  cli.py                    interactive command line
+  config.py                 credential resolution
+  prepare.py                aspect-ratio pre-crop
+  vision.py                 Stage 1 — Claude writes the scene sentence
+  style.py                  prompt assembly (Part A + Part B)
+  higgsfield.py             Stage 2 — upload, repaint, download
+  deliverables.py           watermark and phone crop
 style_block.txt             fixed Part B of the prompt (warm)
 style_block_cool.txt        same, minus the warm-light clause
-packs/*.pan.json            per-image 9:16 pan offsets
+packs/*.pan.json            hand-tuned 9:16 pan offsets
 samples/                    before/after pairs, their prompts, and the video
 docs/field-notes.md         what works, what fails, and why
 docs/phase-1-brief.md       the original build spec
-LICENSE                     MIT, covering code and docs only
 ```
 
-The image working folders (`Input_Images/`, `Input_Prepared/`, `Processed_Images/`,
-`Deliverables/`) are **not tracked** — they run to ~1.7 GB and the renders are
-reproducible from the sidecar prompts. Only `samples/` is committed.
+`input/` and `output/` are tracked as empty folders; their contents never are.
 
 ## Status
 
-Phase 1 is complete: folder in, 4K oil-paint stills out, cut to two delivery formats.
-
-- **Prod01 Sports** — 12/12 rendered at 5504×3072, cut to both formats.
-- **Video** — Seedance 2.0 holds the paint texture, Kling destroys it. 1080p at 7s is
-  the config that stays affordable without losing the brushwork; the sample above was
-  rendered at 4K and downscaled for this repo.
-- **Next packs** — Villa (should run clean: sunlit, broad surfaces) and Larp (needs
-  generated bases for the watches and cars).
+The stills pipeline is complete and runnable end to end. Video is validated but still
+driven by hand — Seedance 2.0 holds the paint texture, Kling destroys it, and 1080p at 7s
+is the config that stays affordable without losing the brushwork.
 
 ## License and source material
 
-The code, prompts and documentation in this repository are MIT licensed — see
-[LICENSE](LICENSE).
+The code, prompts and documentation are MIT licensed — see [LICENSE](LICENSE).
 
 The **photographs are not**. Sample sources are included only to show what the pipeline
 receives as input, and the rights in them belong to their original photographers. This is
 a non-commercial personal project; nothing here is produced for sale.
 
-If you fork this to run on your own images, use photographs you took or hold rights to.
-Worth knowing if you ever point it at stock: a lot of arena and event photography is
-licensed *editorial use only*, which restricts commercial reuse independently of any
-trademark question.
+If you run this on your own images, use photographs you took or hold rights to. Worth
+knowing if you ever point it at stock: a lot of arena and event photography is licensed
+*editorial use only*, which restricts commercial reuse independently of any trademark
+question.

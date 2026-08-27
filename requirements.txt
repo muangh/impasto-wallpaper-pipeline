@@ -1,4 +1,9 @@
-# make_deliverables.py only needs Pillow.
-# macOS note: the system interpreter at /usr/bin/python3 already ships with
-# Pillow 11.3, so `make_deliverables.py` runs there with no install at all.
+# Stage 2 — the Higgsfield repaint (required)
+higgsfield-client>=0.1
+
+# Stage 1 — Claude writes a scene description per photograph (optional but
+# recommended; without it the repaint uses a generic description)
+anthropic>=0.40
+
+# Image preparation and finishing
 Pillow>=10.0

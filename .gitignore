@@ -1,3 +1,9 @@
+# --- Pipeline in/out: the folders are tracked, their contents are not ----
+input/*
+output/*
+!input/.gitkeep
+!output/.gitkeep
+
 # --- Image / video working data -------------------------------------------
 # Source photos and 4K renders run ~1.7 GB and are regenerable (or licensed
 # stock that should not be redistributed). Only samples/ is tracked.
